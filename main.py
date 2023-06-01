@@ -30,6 +30,16 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), vsync=1)
 # GENERAL METHODS
 
 def drawRobot(tx, ty, sx, sy, t):
+    s1x = (cos(t) * robot.S1[0] - sin(t) * robot.S1[1]) * sx + tx
+    s1y = (sin(t) * robot.S1[0] + cos(t) * robot.S1[1]) * sy + ty
+    s2x = (cos(t) * robot.S2[0] - sin(t) * robot.S2[1]) * sx + tx
+    s2y = (sin(t) * robot.S2[0] + cos(t) * robot.S2[1]) * sy + ty
+
+    s1 = imp.get_at((floor(s1x), floor(s1y)))
+    s2 = imp.get_at((floor(s2x), floor(s2y)))
+
+    print(s1, s2)
+
     for segment in robot.SEGMENTOS:
         
         [p1x, p1y] = robot.PONTOS[segment[0]]
@@ -63,7 +73,7 @@ class Robo:
         self.position = position
 
 imp = pygame.image.load("./pista.png").convert()
-
+# print(imp.get_at())
 pygame.init()
 CLOCK = pygame.time.Clock()
 IS_SIMULATION_RUNNING = True # APPLICATION CONTROL VARIABLE
@@ -89,7 +99,7 @@ while IS_SIMULATION_RUNNING:
         break
 
     drawRobot((X_DIMENSION / 2) + px, (Y_DIMENSION / 2) + py, 2, 2, pi / 4)
-
+    
     # DRAW CURRENT MATRIX STATUSES 
     for i in range(0, X_DIMENSION):
         for j in range(0, Y_DIMENSION):
