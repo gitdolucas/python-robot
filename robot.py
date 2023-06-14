@@ -1,8 +1,8 @@
 from math import cos, sin, pi
-L = 10
-C = 10
-WL = 3
-WC = 6
+L = 20
+C = 20
+WL = 10
+WC = 14
 ALPHA = pi / 12
 DS = 20
 R1 = (L / 2, C / 2)
