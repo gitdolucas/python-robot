@@ -30,32 +30,46 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), vsync=1)
 TAMANHO_SETA = 10
 
 # GENERAL METHODS
-def somar_vetores(v1, v2):
-    return [v1[0]+v2[0], v1[1]+v2[1]]
+
+
+def sum_vectors(v1, v2):
+    return [v1[0] + v2[0], v1[1] + v2[1]]
+
+def subtract_vector(v1, v2):
+    return [v1[0] - v2[0], v1[1] - v2[1]]
+
+def multiply_vector_by(vector, multiplier):
+    return [vector[0] * multiplier, vector[1] * multiplier]
 
 # Converte um ângulo em graus para radianos
+
+
 def rad(angulo):
     return angulo*pi/180
 
 # Desenha um vetor v na tela
+
+
 def desenhar_vetor(p, v, cor=(WHITE)):
     # Desenha a linha do vetor
-    pygame.draw.line(SCREEN, cor, p, somar_vetores(p,v))
-    
+    pygame.draw.line(SCREEN, cor, p, sum_vectors(p, v))
+
     # Desenha a seta do vetor
-    
-    theta = atan2(v[1],v[0])
+
+    theta = atan2(v[1], v[0])
     #print(f"Theta: {theta}")
     #print(f"V: {v}",end="\n\n")
 
     # Cálculo das setas do vetor v
-    s1 = (v[0]+TAMANHO_SETA * cos(3*pi/4+theta), v[1] + TAMANHO_SETA * sin(3*pi/4+theta))
-    s2 = (v[0]+TAMANHO_SETA * cos(5*pi/4+theta), v[1] + TAMANHO_SETA * sin(5*pi/4+theta))
+    s1 = (v[0]+TAMANHO_SETA * cos(3*pi/4+theta),
+          v[1] + TAMANHO_SETA * sin(3*pi/4+theta))
+    s2 = (v[0]+TAMANHO_SETA * cos(5*pi/4+theta),
+          v[1] + TAMANHO_SETA * sin(5*pi/4+theta))
 
     # Desenhar as setas
-    pygame.draw.line(SCREEN, cor, somar_vetores(p,v), somar_vetores(p,s1))
-    pygame.draw.line(SCREEN, cor, somar_vetores(p,v), somar_vetores(p,s2))
-    
+    pygame.draw.line(SCREEN, cor, sum_vectors(p, v), sum_vectors(p, s1))
+    pygame.draw.line(SCREEN, cor, sum_vectors(p, v), sum_vectors(p, s2))
+
 
 def mod(x, y):
     return sqrt(x ** 2 + y ** 2)
@@ -74,28 +88,20 @@ def getSensor(tx, ty, sx, sy, t, vx, vy):
 
 
 def drawRobot(tx, ty, sx, sy, theta, rpme, rpmd):
-    CENTRO = (tx,ty)
-    CE = [0, -(robot.L+robot.WL)/2]
-    CD = [0, +(robot.L+robot.WL)/2]
-    ve = rpme * 2 * pi * robot.WC/2
-    vd = rpmd * 2 * pi * robot.WC/2
-    PE = [ve, -(robot.L+robot.WL)/2]
+    CENTRO = (tx, ty) #robot center point
+    CE = [0, -(robot.L+robot.WL)/2] # left wheel center 
+    CD = [0, +(robot.L+robot.WL)/2] # right wheel center
+    ve = rpme * 2 * pi * robot.WC/2 # circuference left wheel
+    vd = rpmd * 2 * pi * robot.WC/2 # circuference right wheel
+    PE = [ve, -(robot.L+robot.WL)/2] 
     PD = [vd, +(robot.L+robot.WL)/2]
-    d_ed = [PE[0]-PD[0], PE[1]-PD[1]] 
+    d_ed = [PE[0]-PD[0], PE[1]-PD[1]]
 
     v_ve = [PE[0]-CE[0], PE[1]-CE[1]]
     v_vd = [PD[0]-CD[0], PD[1]-CD[1]]
 
     n0 = [-d_ed[1], d_ed[0]]
     n1 = [d_ed[1], -d_ed[0]]
-    
-    #CE = somar_vetores(CE,translacao)
-    #CD = somar_vetores(CD,translacao)
-    #PE = somar_vetores(PE,translacao)
-    #PD = somar_vetores(PD,translacao)
-
-    #desenhar_vetor(CE,v_ve)
-    #desenhar_vetor(CD,v_vd)
 
     for segment in robot.SEGMENTOS:
 
@@ -138,13 +144,20 @@ def drawRobot(tx, ty, sx, sy, theta, rpme, rpmd):
     tdy = (sin(theta) * d_ed[0] + cos(theta) * d_ed[1])
     td = (tdx, tdy)
 
-    desenhar_vetor(tCE,tv_ve)
-    desenhar_vetor(tCD,tv_vd)
-    desenhar_vetor(CENTRO,tn0)
-    desenhar_vetor(CENTRO,tn1)
-    desenhar_vetor(CENTRO,td)
+    desenhar_vetor(tCE, tv_ve)
+    desenhar_vetor(tCD, tv_vd)
+    velDistance = subtract_vector(v_ve, v_vd)
+    velDistance_midPoint = multiply_vector_by(velDistance, 1/2)
+    desenhar_vetor(sum_vectors(CENTRO, subtract_vector(v_ve, velDistance_midPoint)), tn0, RED)  # vetor de direção quando direita
+    desenhar_vetor(sum_vectors(CENTRO, subtract_vector(v_ve, velDistance_midPoint)), tn1, BLUE)  # vetor de direção quando esquerda
+
+    vector_distance = [sum_vectors(
+        tCE, tv_ve), sum_vectors(tCD, tv_vd)]
+    pygame.draw.line(SCREEN, GREEN, vector_distance[0], vector_distance[1])
 
 # UTIL TO CREATE A MATRIX WITH DIMENSION SIZE
+
+
 def GenerateMatrix():
     return [[0 for j in range(Y_DIMENSION)] for i in range(X_DIMENSION)]
 
@@ -204,7 +217,7 @@ while IS_SIMULATION_RUNNING:
     if not IS_SIMULATION_RUNNING:
         break
 
-    drawRobot(WIDTH/2, HEIGHT/2, 1, 1, 0, 3, 2)
+    drawRobot(WIDTH/2, HEIGHT/2, 1, 1, 0, 1, 0.8)
     if getSensor((X_DIMENSION / 2) + px, (Y_DIMENSION / 2) + py, 2, 2, pi / 4, vx, vy)[0] == (255, 255, 255, 255):
         vx -= 1
         vy -= 1
